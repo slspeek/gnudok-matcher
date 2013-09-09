@@ -15,6 +15,7 @@ setup(
                         'flup==1.0.2',
                         'django-bootstrap-toolkit',
                         'django',
+                        'psycopg2',
                         'django-nose',
                         'django-webtest',
                         'WebTest', 

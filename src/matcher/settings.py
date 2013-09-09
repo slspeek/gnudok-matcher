@@ -12,11 +12,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'djangomatcher',
-        'USER': 'djangomatcher',
-        'PASSWORD': 'djangomatcher',
-        'HOST': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'matcher',
+        'USER': 'matcher',
+        'PASSWORD': 'matcher',
+        'HOST': '127.0.0.1',
         'PORT': '',
     },
 }

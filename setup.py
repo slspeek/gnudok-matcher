@@ -14,7 +14,7 @@ setup(
                         'docutils',
                         'flup==1.0.2',
                         'django-bootstrap-toolkit',
-                        'django==1.4.2',
+                        'django',
                         'django-nose',
                         'django-webtest',
                         'WebTest', 

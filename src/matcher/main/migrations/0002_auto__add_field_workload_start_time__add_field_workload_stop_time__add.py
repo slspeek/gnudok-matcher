@@ -8,89 +8,31 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Capability'
-        db.create_table(u'main_capability', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal(u'main', ['Capability'])
+        # Adding field 'WorkLoad.start_time'
+        db.add_column(u'main_workload', 'start_time',
+                      self.gf('django.db.models.fields.TimeField')(default=datetime.time(8, 45)),
+                      keep_default=False)
 
-        # Adding model 'Employee'
-        db.create_table(u'main_employee', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('parent', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
-        ))
-        db.send_create_signal(u'main', ['Employee'])
+        # Adding field 'WorkLoad.stop_time'
+        db.add_column(u'main_workload', 'stop_time',
+                      self.gf('django.db.models.fields.TimeField')(default=datetime.time(17, 15)),
+                      keep_default=False)
 
-        # Adding M2M table for field capabilities on 'Employee'
-        m2m_table_name = db.shorten_name(u'main_employee_capabilities')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('employee', models.ForeignKey(orm[u'main.employee'], null=False)),
-            ('capability', models.ForeignKey(orm[u'main.capability'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['employee_id', 'capability_id'])
-
-        # Adding model 'Location'
-        db.create_table(u'main_location', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal(u'main', ['Location'])
-
-        # Adding model 'Task'
-        db.create_table(u'main_task', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('location', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Location'])),
-            ('capability', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Capability'], blank=True)),
-        ))
-        db.send_create_signal(u'main', ['Task'])
-
-        # Adding model 'Shift'
-        db.create_table(u'main_shift', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('day_of_week', self.gf('django.db.models.fields.IntegerField')()),
-            ('start_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(8, 45))),
-            ('stop_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(17, 15))),
-            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Task'])),
-            ('employee', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Employee'])),
-        ))
-        db.send_create_signal(u'main', ['Shift'])
-
-        # Adding model 'WorkLoad'
-        db.create_table(u'main_workload', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('date', self.gf('django.db.models.fields.DateField')()),
-            ('shift', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Shift'])),
-        ))
-        db.send_create_signal(u'main', ['WorkLoad'])
+        # Adding field 'WorkLoad.user_comment'
+        db.add_column(u'main_workload', 'user_comment',
+                      self.gf('django.db.models.fields.TextField')(default='', blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Capability'
-        db.delete_table(u'main_capability')
+        # Deleting field 'WorkLoad.start_time'
+        db.delete_column(u'main_workload', 'start_time')
 
-        # Deleting model 'Employee'
-        db.delete_table(u'main_employee')
+        # Deleting field 'WorkLoad.stop_time'
+        db.delete_column(u'main_workload', 'stop_time')
 
-        # Removing M2M table for field capabilities on 'Employee'
-        db.delete_table(db.shorten_name(u'main_employee_capabilities'))
-
-        # Deleting model 'Location'
-        db.delete_table(u'main_location')
-
-        # Deleting model 'Task'
-        db.delete_table(u'main_task')
-
-        # Deleting model 'Shift'
-        db.delete_table(u'main_shift')
-
-        # Deleting model 'WorkLoad'
-        db.delete_table(u'main_workload')
+        # Deleting field 'WorkLoad.user_comment'
+        db.delete_column(u'main_workload', 'user_comment')
 
 
     models = {
@@ -169,7 +111,10 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'WorkLoad'},
             'date': ('django.db.models.fields.DateField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'shift': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Shift']"})
+            'shift': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Shift']"}),
+            'start_time': ('django.db.models.fields.TimeField', [], {'default': 'datetime.time(8, 45)'}),
+            'stop_time': ('django.db.models.fields.TimeField', [], {'default': 'datetime.time(17, 15)'}),
+            'user_comment': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         }
     }
 

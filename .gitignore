@@ -1,4 +1,6 @@
+tags
 *~
+*.swp
 *.pyc
 src/*.pyc
 src/matcher/static
@@ -19,4 +21,4 @@ cover/*
 .coverage
 .project
 .pydevproject
-.pydevproject.bak
+.bak

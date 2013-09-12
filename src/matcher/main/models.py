@@ -32,6 +32,9 @@ class Task(models.Model):
     description =  models.TextField(_('description'), blank=True)
     location = models.ForeignKey(Location, verbose_name=_('location'))
     capability = models.ForeignKey(Capability, verbose_name=('capability'), blank=True)
+    maximum_count = models.IntegerField(_('maximum count'), default=2)
+    minimum_count = models.IntegerField(_('minimum count'), default=1)
+    priority = models.IntegerField(_('priority'), default=1)
 
     def __str__(self):
         return u"%s %s %s" % (self.name, _('at'), self.location)
@@ -61,5 +64,8 @@ class WorkLoad(models.Model):
     shift = models.ForeignKey(Shift, verbose_name=_('shift'))
     start_time = models.TimeField(_('start time'), default=datetime.time(8, 45))
     stop_time = models.TimeField(_('stop time'), default=datetime.time(17, 15))
-    user_comment  = models.TextField(_('Comment'), blank=True)
+    user_comment  = models.TextField(_('comment'), blank=True)
+
+    def __str__(self):
+        return u"%s %s" % (self.date, self.shift)
     

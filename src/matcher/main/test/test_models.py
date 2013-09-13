@@ -18,7 +18,7 @@ class TrySomeQueries(TestCase):
 
 
     def test_do_some_queries(self):
-        """ Who works at ZBP at monday """
+        """ Count shifts at ZBP on monday """
         shifts_at_zbp_on_monday = Shift.objects.filter(
                           task__location=self.zbp,
                           day_of_week=1)

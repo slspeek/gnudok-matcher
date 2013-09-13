@@ -1,4 +1,4 @@
-from matcher.main.models import Capability, Employee, Location, Task, Shift, WorkLoad
+from matcher.main.models import Capability, Employee, Location, Task, Shift, Attendance
 import factory
 import datetime
 from django_factory_boy.auth import UserF, GroupF
@@ -51,6 +51,7 @@ class CapabilityFactory(factory.Factory):
 class EmployeeFactory(factory.Factory):
     FACTORY_FOR = Employee
     parent = factory.SubFactory(UserF)
+    type = Employee.VOLUNTEER
 
 
 class LocationFactory(factory.Factory):
@@ -73,8 +74,8 @@ class ShiftFactory(factory.Factory):
     task = factory.SubFactory(TaskFactory)
     employee = factory.SubFactory(EmployeeFactory)
 
-class WorkLoadFactory(factory.Factory):
-    FACTORY_FOR = WorkLoad
+class AttendanceFactory(factory.Factory):
+    FACTORY_FOR = Attendance
     date = datetime.date(2012, 2, 22)
     shift = factory.SubFactory(ShiftFactory)
     start_time = datetime.time(12, 30)

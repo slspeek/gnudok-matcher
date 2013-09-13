@@ -3,6 +3,7 @@ import factory
 import datetime
 from django_factory_boy.auth import UserF, GroupF
 from django.contrib.auth.models import User
+from ..fields import EmployeeTypeField
 
 def createRootUser(self): 
     self.root_user = User.objects.create_superuser('root', 'root@gnu.org', 'root')
@@ -51,7 +52,7 @@ class CapabilityFactory(factory.Factory):
 class EmployeeFactory(factory.Factory):
     FACTORY_FOR = Employee
     parent = factory.SubFactory(UserF)
-    type = Employee.VOLUNTEER
+    type = EmployeeTypeField.VOLUNTEER
 
 
 class LocationFactory(factory.Factory):

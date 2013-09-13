@@ -19,7 +19,12 @@ class Migration(SchemaMigration):
         # Adding model 'Employee'
         db.create_table(u'main_employee', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('type', self.gf('matcher.main.fields.EmployeeTypeField')()),
             ('parent', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
+            ('address', self.gf('django.db.models.fields.CharField')(max_length=30)),
+            ('town', self.gf('django.db.models.fields.CharField')(max_length=20)),
+            ('telephone', self.gf('django.db.models.fields.CharField')(max_length=20)),
+            ('emergency', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal(u'main', ['Employee'])
 
@@ -31,6 +36,16 @@ class Migration(SchemaMigration):
             ('capability', models.ForeignKey(orm[u'main.capability'], null=False))
         ))
         db.create_unique(m2m_table_name, ['employee_id', 'capability_id'])
+
+        # Adding model 'Contract'
+        db.create_table(u'main_contract', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('start_date', self.gf('django.db.models.fields.DateField')()),
+            ('end_date', self.gf('django.db.models.fields.DateField')()),
+            ('employee', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Employee'])),
+            ('contact_data', self.gf('django.db.models.fields.TextField')(blank=True)),
+        ))
+        db.send_create_signal(u'main', ['Contract'])
 
         # Adding model 'Location'
         db.create_table(u'main_location', (
@@ -47,13 +62,26 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('location', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Location'])),
             ('capability', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Capability'], blank=True)),
+            ('minimum_count', self.gf('django.db.models.fields.IntegerField')(default=1)),
+            ('maximum_count', self.gf('django.db.models.fields.IntegerField')(default=2)),
+            ('priority', self.gf('django.db.models.fields.IntegerField')(default=1)),
         ))
         db.send_create_signal(u'main', ['Task'])
+
+        # Adding model 'TaskShift'
+        db.create_table(u'main_taskshift', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('day_of_week', self.gf('matcher.main.fields.DayOfTheWeekField')()),
+            ('start_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(8, 45))),
+            ('stop_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(17, 15))),
+            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Task'])),
+        ))
+        db.send_create_signal(u'main', ['TaskShift'])
 
         # Adding model 'Shift'
         db.create_table(u'main_shift', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('day_of_week', self.gf('django.db.models.fields.IntegerField')()),
+            ('day_of_week', self.gf('matcher.main.fields.DayOfTheWeekField')()),
             ('start_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(8, 45))),
             ('stop_time', self.gf('django.db.models.fields.TimeField')(default=datetime.time(17, 15))),
             ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Task'])),
@@ -61,13 +89,20 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'main', ['Shift'])
 
-        # Adding model 'WorkLoad'
-        db.create_table(u'main_workload', (
+        # Adding model 'Attendance'
+        db.create_table(u'main_attendance', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('type', self.gf('matcher.main.fields.AttendanceTypeField')()),
             ('date', self.gf('django.db.models.fields.DateField')()),
-            ('shift', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Shift'])),
+            ('checkin_time', self.gf('django.db.models.fields.TimeField')()),
+            ('checkout_time', self.gf('django.db.models.fields.TimeField')()),
+            ('user_comment', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('start_time', self.gf('django.db.models.fields.TimeField')()),
+            ('stop_time', self.gf('django.db.models.fields.TimeField')()),
+            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Task'])),
+            ('employee', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Employee'])),
         ))
-        db.send_create_signal(u'main', ['WorkLoad'])
+        db.send_create_signal(u'main', ['Attendance'])
 
 
     def backwards(self, orm):
@@ -80,17 +115,23 @@ class Migration(SchemaMigration):
         # Removing M2M table for field capabilities on 'Employee'
         db.delete_table(db.shorten_name(u'main_employee_capabilities'))
 
+        # Deleting model 'Contract'
+        db.delete_table(u'main_contract')
+
         # Deleting model 'Location'
         db.delete_table(u'main_location')
 
         # Deleting model 'Task'
         db.delete_table(u'main_task')
 
+        # Deleting model 'TaskShift'
+        db.delete_table(u'main_taskshift')
+
         # Deleting model 'Shift'
         db.delete_table(u'main_shift')
 
-        # Deleting model 'WorkLoad'
-        db.delete_table(u'main_workload')
+        # Deleting model 'Attendance'
+        db.delete_table(u'main_attendance')
 
 
     models = {
@@ -130,17 +171,43 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'main.attendance': {
+            'Meta': {'object_name': 'Attendance'},
+            'checkin_time': ('django.db.models.fields.TimeField', [], {}),
+            'checkout_time': ('django.db.models.fields.TimeField', [], {}),
+            'date': ('django.db.models.fields.DateField', [], {}),
+            'employee': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Employee']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'start_time': ('django.db.models.fields.TimeField', [], {}),
+            'stop_time': ('django.db.models.fields.TimeField', [], {}),
+            'task': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Task']"}),
+            'type': ('matcher.main.fields.AttendanceTypeField', [], {}),
+            'user_comment': ('django.db.models.fields.TextField', [], {'blank': 'True'})
+        },
         u'main.capability': {
             'Meta': {'object_name': 'Capability'},
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
+        u'main.contract': {
+            'Meta': {'object_name': 'Contract'},
+            'contact_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'employee': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Employee']"}),
+            'end_date': ('django.db.models.fields.DateField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'start_date': ('django.db.models.fields.DateField', [], {})
+        },
         u'main.employee': {
             'Meta': {'object_name': 'Employee'},
+            'address': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'capabilities': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['main.Capability']", 'symmetrical': 'False', 'blank': 'True'}),
+            'emergency': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'parent': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+            'parent': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
+            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'town': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'type': ('matcher.main.fields.EmployeeTypeField', [], {})
         },
         u'main.location': {
             'Meta': {'object_name': 'Location'},
@@ -150,7 +217,7 @@ class Migration(SchemaMigration):
         },
         u'main.shift': {
             'Meta': {'object_name': 'Shift'},
-            'day_of_week': ('django.db.models.fields.IntegerField', [], {}),
+            'day_of_week': ('matcher.main.fields.DayOfTheWeekField', [], {}),
             'employee': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Employee']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'start_time': ('django.db.models.fields.TimeField', [], {'default': 'datetime.time(8, 45)'}),
@@ -163,13 +230,18 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Location']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'})
+            'maximum_count': ('django.db.models.fields.IntegerField', [], {'default': '2'}),
+            'minimum_count': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'priority': ('django.db.models.fields.IntegerField', [], {'default': '1'})
         },
-        u'main.workload': {
-            'Meta': {'object_name': 'WorkLoad'},
-            'date': ('django.db.models.fields.DateField', [], {}),
+        u'main.taskshift': {
+            'Meta': {'object_name': 'TaskShift'},
+            'day_of_week': ('matcher.main.fields.DayOfTheWeekField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'shift': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Shift']"})
+            'start_time': ('django.db.models.fields.TimeField', [], {'default': 'datetime.time(8, 45)'}),
+            'stop_time': ('django.db.models.fields.TimeField', [], {'default': 'datetime.time(17, 15)'}),
+            'task': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.Task']"})
         }
     }
 
